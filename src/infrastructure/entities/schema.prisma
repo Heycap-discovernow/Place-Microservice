@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model dislikes {
+  dislike_id Int      @id @default(autoincrement())
+  user_id    Int
+  place_id   Int
+  place      places   @relation(fields: [place_id], references: [place_id], onDelete: Cascade, onUpdate: Cascade)
+  user_uuid  String
+  created_at DateTime @default(now())
+
+  @@unique([user_id, place_id]) // Define la clave compuesta
+}
+
+model likes {
+  like_id    Int      @id @default(autoincrement())
+  user_uuid  String
+  place_id   Int
+  place      places   @relation(fields: [place_id], references: [place_id], onDelete: Cascade, onUpdate: Cascade)
+  created_at DateTime @default(now())
+
+  @@unique([user_uuid, place_id]) // Define la clave compuesta
+}
+
+model views {
+  views_id   Int      @id @default(autoincrement())
+  user_uuid  String
+  place_id   Int
+  place      places   @relation(fields: [place_id], references: [place_id], onDelete: Cascade, onUpdate: Cascade)
+  created_at DateTime @default(now())
+
+  @@unique([user_uuid, place_id]) // Define la clave compuesta
+}
+
+model places {
+  place_id   Int      @id @default(autoincrement())
+  place_uuid String   @unique
+  google_id  String   @unique @db.VarChar
+  name       String   @db.VarChar
+  photo_uri     String   @db.VarChar
+  rating     Decimal  @db.Decimal
+  vicinity   String   @db.VarChar
+  lat        Decimal  @db.Decimal
+  lng        Decimal  @db.Decimal
+  types      String[] @db.VarChar
+  cost       String   @default("0") @db.VarChar
+
+  dislikes dislikes[]
+  likes    likes[]
+  views    views[]
+}
